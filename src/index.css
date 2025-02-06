@@ -53,6 +53,26 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.win-message {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.win-message button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.win-message button:hover {
+  background-color: #45a049;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
