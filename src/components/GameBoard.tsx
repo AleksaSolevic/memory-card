@@ -7,37 +7,44 @@ type GameBoardProps = {
 }
 
 export default function GameBoard({data}: GameBoardProps) {
+  const [card1, setCard1] = useState<{ id: number; value: string } | null>(null)
+  const [card2, setCard2] = useState<{ id: number; value: string } | null>(null)
+  const [matchedCards, setMatchedCards] = useState<number[]>([])
 
-  const [clickCount, setClickCount] = useState(0);
-  const [card1, setCard1] = useState('');
-  const [card2, setCard2] = useState('');
-
-  function handleCardClick(id: number, value: string, isVisible: boolean) {
-
-    console.log(id);
-
-    if (!isVisible) {
-      setClickCount((prevCount) => prevCount + 1);
-      if (clickCount === 0) setCard1(value);
-      if (clickCount === 1) setCard2(value);
+  function handleCardClick(id: number, value: string) {
+    if (!card1) {
+      setCard1({ id, value })
+    } else if (!card2 && card1.id !== id) {
+      setCard2({ id, value })
     }
   }
 
   useEffect(() => {
-    if (clickCount === 2) {
-      if (card1 === card2) console.log("Correct!");
-      setClickCount(0);
+    if (card1 && card2) {
+      if (card1.value === card2.value) {
+        setMatchedCards([...matchedCards, card1.id, card2.id])
+        setCard1(null)
+        setCard2(null)
+      } else {
+        setTimeout(() => {
+          setCard1(null)
+          setCard2(null)
+        }, 1000)
+      }
     }
-
-  }, [clickCount]);
+  }, [card1, card2])
 
   return (
     <ul className="game-board">
-      {data.map(item => (
+      {data.map((item) => (
         <Card
-          onSetVisibility={handleCardClick}
-          isVisible={false}
-          key={item.id} id={item.id} value={item.value} />
+          getID={handleCardClick}
+          isVisible={card1?.id === item.id || card2?.id === item.id}
+          isMatch={matchedCards.includes(item.id)}
+          key={item.id}
+          id={item.id}
+          value={item.value}
+        />
       ))}
     </ul>
   )
