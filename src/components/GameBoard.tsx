@@ -11,6 +11,8 @@ export default function GameBoard({data}: GameBoardProps) {
   const [card2, setCard2] = useState<{ id: number; value: string } | null>(null)
   const [matchedCards, setMatchedCards] = useState<number[]>([])
   const [isGameWon, setIsGameWon] = useState(false)
+  const [timer, setTimer] = useState(0)
+  const [isGameStarted, setIsGameStarted] = useState(false)
 
   function handleCardClick(id: number, value: string) {
     if (isGameWon) return
@@ -26,6 +28,8 @@ export default function GameBoard({data}: GameBoardProps) {
     setCard2(null)
     setMatchedCards([])
     setIsGameWon(false)
+    setTimer(0)
+    setIsGameStarted(false)
   }
 
   useEffect(() => {
@@ -49,8 +53,33 @@ export default function GameBoard({data}: GameBoardProps) {
     }
   }, [matchedCards, data.length])
 
+  useEffect(() => {
+    let interval: number
+    if (isGameStarted && !isGameWon) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1)
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isGameStarted, isGameWon])
+
+  useEffect(() => {
+    if (!isGameStarted && (card1 || card2)) {
+      setIsGameStarted(true)
+    }
+  }, [card1, card2])
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `⏱️ ${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+  }
+
   return (
     <div>
+      <div className="game-header">
+        <span className="timer">{formatTime(timer)}</span>
+      </div>
       <ul className="game-board">
         {data.map((item) => (
           <Card
@@ -67,6 +96,7 @@ export default function GameBoard({data}: GameBoardProps) {
       {isGameWon && (
         <div className="win-message">
           <h2>Congratulations! You won!</h2>
+          <p>Your time: {formatTime(timer)}</p>
           <button onClick={resetGame}>Play Again</button>
         </div>
       )}
